@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ML
+mlruns/
+checkpoints/
+models/
+
+# VS Code
+.vscode/
+
+# Dataset exports
+datasets/exports/*.csv
+
+# Prisma
+prisma/dev.db
+
+# Docker
+docker-data/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary
+temp/
+.cache/
