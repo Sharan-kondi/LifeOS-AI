@@ -1,24 +1,22 @@
 import { Request, Response } from "express";
 import prisma from "../database/prisma";
 
-export const getTransactions = async (
+export const getSubscriptions = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const transactions =
-      await prisma.transaction.findMany({
+    const subscriptions =
+      await prisma.subscription.findMany({
         take: 100,
-        orderBy: {
-          timestamp: "desc",
-        },
       });
 
-    res.json(transactions);
+    res.json(subscriptions);
   } catch (error) {
     console.log(error);
+
     res.status(500).json({
-      message: "Error fetching transactions",
+      message: "Error fetching subscriptions",
     });
   }
 };

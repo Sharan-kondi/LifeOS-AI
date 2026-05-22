@@ -8,43 +8,81 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  fullName      String
-  email         String   @unique
-  age           Int
-  city          String
-  profession    String
-  monthlyIncome Float
-  lifestyleType String
-  createdAt     DateTime @default(now())
+  id                     String @id
+  fullName               String
+  email                  String
+  age                    Int
+  city                   String
+  profession             String
+  monthlyIncome          Float
+  lifestyleType          String
+  monthlySavingsEstimate Float
 
   transactions  Transaction[]
   subscriptions Subscription[]
+  productivity  Productivity[]
+  anomalies     Anomaly[]
 }
 
 model Transaction {
-  id              String   @id @default(uuid())
-  userId          String
-  amount          Float
-  category        String
-  merchant        String
-  transactionType String
-  paymentMethod   String
-  timestamp       DateTime
-  location        String
-  isAnomaly       Boolean  @default(false)
+  id                 String   @id
+  userId             String
+  timestamp          DateTime
+  category           String
+  merchant           String
+  amount             Float
+  paymentMethod      String
+  location           String
+  isWeekend          Boolean
+  isNightTransaction Boolean
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model Subscription {
-  id          String   @id @default(uuid())
-  userId      String
-  serviceName String
-  monthlyCost Float
-  category    String
-  renewalDate DateTime
-  active      Boolean  @default(true)
+  id                    String   @id
+  userId                String
+  serviceName           String
+  category              String
+  monthlyCost           Float
+  renewalDate           DateTime
+  active                Boolean
+  autoPayEnabled        Boolean
+  subscriptionStartDate DateTime
+  usageFrequency        String
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Productivity {
+  id                String   @id
+  userId            String
+  date              DateTime
+  sleepHours        Float
+  workHours         Float
+  focusSessions     Int
+  meetingsCount     Int
+  screenTimeHours   Float
+  stressLevel       Int
+  productivityScore Float
+  burnoutRisk       Boolean
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Anomaly {
+  id                 String   @id
+  userId             String
+  timestamp          DateTime
+  category           String
+  merchant           String
+  amount             Float
+  paymentMethod      String
+  location           String
+  isWeekend          Boolean
+  isNightTransaction Boolean
+  isAnomaly          Boolean
+  anomalyType        String
 
   user User @relation(fields: [userId], references: [id])
 }

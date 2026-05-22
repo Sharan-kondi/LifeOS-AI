@@ -10,7 +10,12 @@ fake = Faker("en_IN")
 OUTPUT_DIR = Path("../exports")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# LOAD USERS CSV
 users_df = pd.read_csv("../exports/users.csv")
+
+# IMPORTANT
+# remove spaces or hidden chars
+users_df.columns = users_df.columns.str.strip()
 
 transaction_categories = {
     "Food": [
@@ -73,19 +78,15 @@ transactions = []
 
 for _, user in users_df.iterrows():
 
-    user_id = user["user_id"]
+    user_id = str(user["user_id"]).strip()
 
-    monthly_income = user["monthly_income"]
-
-    lifestyle = user["lifestyle_type"]
+    lifestyle = str(user["lifestyle_type"]).strip()
 
     days_to_generate = 180
 
     for day in range(days_to_generate):
 
-        current_date = (
-            datetime.now() - timedelta(days=day)
-        )
+        current_date = datetime.now() - timedelta(days=day)
 
         transactions_per_day = random.randint(1, 5)
 
@@ -126,7 +127,7 @@ for _, user in users_df.iterrows():
             if lifestyle == "Overspender":
                 amount *= random.uniform(1.2, 1.8)
 
-            if lifestyle == "Saver":
+            elif lifestyle == "Saver":
                 amount *= random.uniform(0.6, 0.9)
 
             transaction_time = current_date.replace(
@@ -143,10 +144,9 @@ for _, user in users_df.iterrows():
                 "merchant": merchant,
                 "amount": round(amount, 2),
                 "payment_method": random.choice(payment_methods),
-                "location": user["city"],
+                "location": str(user["city"]).strip(),
                 "is_weekend": current_date.weekday() >= 5,
-                "is_night_transaction":
-                    transaction_time.hour >= 22,
+                "is_night_transaction": transaction_time.hour >= 22
             })
 
 transactions_df = pd.DataFrame(transactions)
