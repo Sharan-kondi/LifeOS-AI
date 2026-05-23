@@ -1,44 +1,122 @@
-# LifeOS AI
+<div align="center">
+  <img src="frontend/public/favicon.ico" alt="LifeOS AI Logo" width="80" height="80" />
+  <h1>LifeOS AI</h1>
+  <p>An Autonomous Personal Finance & Productivity Intelligence Platform</p>
+</div>
 
-Production-grade AI-powered Personal Finance + Productivity Intelligence Platform.
+---
 
-## Features
+## 🌟 Overview
 
-- AI Financial Analyst
-- Expense Categorization ML
-- Fraud Detection
-- Cashflow Forecasting
-- Multi-Agent AI System
-- RAG-based Financial Assistant
-- Real-time Notifications
-- Explainable AI
-- MLOps Pipeline
-- AI Copilot
+**LifeOS AI** is a production-grade intelligence platform that seamlessly unifies personal finance management with productivity tracking. By leveraging advanced Machine Learning and Large Language Models (LLMs), LifeOS transforms raw data—like credit card transactions, software subscriptions, and daily work hours—into actionable insights. 
 
-## Tech Stack
+Instead of just showing you charts, LifeOS acts as an **Autonomous Copilot**, capable of answering complex financial questions, detecting fraudulent spending anomalies, and automatically categorizing your expenses.
 
-### Frontend
+## 🚀 Key Features
 
-- Next.js
-- TypeScript
-- TailwindCSS
-- Shadcn UI
+- **Multi-Agent AI Assistant**: Powered by LangChain and Google's Gemini, our AI copilot features specialized sub-agents (Budget Agent, Productivity Agent, Subscription Agent) that securely fetch and analyze your specific data to answer natural language questions.
+- **ML Expense Categorization**: Custom LightGBM/XGBoost models automatically classify raw transaction text into structured budgeting categories with high confidence.
+- **Fraud & Anomaly Detection**: Isolation Forests and Autoencoders monitor your spending patterns to flag unusual weekend or night transactions.
+- **Cashflow Forecasting**: LSTM neural networks and Prophet models predict your future spending trajectory to help you meet your savings goals.
+- **Per-User Data Isolation**: Built from the ground up for multi-tenancy, ensuring that ML insights and AI context windows are strictly isolated by `user_id`.
 
-### Backend
+## 🏗️ Architecture
 
-- Node.js
-- Express
-- PostgreSQL
-- Prisma
+LifeOS AI employs a modern, decoupled microservices architecture:
 
-### AI/ML
+1. **Frontend (`/frontend`)**: A highly responsive, glassmorphic UI built with **Next.js 16**, **React**, **TailwindCSS**, and **Shadcn UI**.
+2. **Backend API (`/backend`)**: A robust **Node.js/Express** server utilizing **Prisma ORM** with **SQLite** for user management, authentication, and serving dashboard analytics.
+3. **AI Services (`/ai-services`)**: A blazing fast **FastAPI** Python microservice housing all our ML models, LangChain multi-agent orchestrators, and data science pipelines.
 
-- FastAPI
-- Scikit-learn
-- Transformers
-- LangChain
-- LangGraph
+---
 
-## Status
+## 🛠️ Getting Started
 
-Currently under active development.
+Follow these instructions to run the entire LifeOS platform locally.
+
+### Prerequisites
+- Node.js (v18+)
+- pnpm (v9+)
+- Python (v3.10+)
+- Git
+
+### 1. Database & Backend Setup
+
+Navigate to the Node backend to set up the database and start the API:
+
+```bash
+cd backend
+pnpm install
+
+# Push the Prisma schema to create the local SQLite database
+pnpm dlx prisma db push
+
+# Seed the synthetic datasets (Users, Transactions, Subscriptions, Productivity, Anomalies)
+pnpm run dev
+# In a separate terminal, run the seed scripts:
+npx ts-node src/seed/seedUsers.ts
+npx ts-node src/seed/seedTransactions.ts
+npx ts-node src/seed/seedSubscriptions.ts
+npx ts-node src/seed/seedProductivity.ts
+npx ts-node src/seed/seedAnomalies.ts
+```
+
+*Note: The `seedTransactions.ts` script seeds over 600,000 synthetic rows and may take a few minutes.*
+
+### 2. AI Services Setup
+
+Navigate to the AI Python microservice to start the Machine Learning endpoints:
+
+```bash
+cd ai-services
+
+# Create a virtual environment
+python -m venv .venv
+
+# Activate the virtual environment
+# Windows:
+.\.venv\Scripts\activate
+# Mac/Linux:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create an .env file for the LangChain Copilot
+echo "GOOGLE_API_KEY=your_gemini_api_key_here" > .env
+
+# Start the FastAPI server
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+*(If the `GOOGLE_API_KEY` is not provided, the AI Assistant will gracefully fall back into a local Demo Mode).*
+
+### 3. Frontend Dashboard
+
+Navigate to the Next.js frontend to start the UI:
+
+```bash
+cd frontend
+pnpm install
+
+# Start the development server
+pnpm run dev
+```
+
+You can now visit `http://localhost:3000` in your browser. 
+Click **"Autofill Demo Credentials"** on the login page to authenticate as one of the seeded users and view your personalized dashboard!
+
+---
+
+## 🧠 Machine Learning Pipelines
+
+All datasets and ML training scripts are included in the repository. 
+The `/ml-models` directory contains the serialized `.pkl` and `.keras` model weights generated by the scripts in `/ai-services/app/`. 
+
+- `/ai-services/app/categorization/train_classifier.py`
+- `/ai-services/app/anomaly/train_anomaly_detector.py`
+- `/ai-services/app/forecasting/train_forecaster.py`
+
+You can run these scripts manually to re-train the models if you modify the synthetic CSV datasets in the `/datasets` folder.
+
+---
+*Developed with ❤️ for the future of personal intelligence.*
