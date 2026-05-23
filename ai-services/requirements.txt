@@ -21,3 +21,7 @@ chromadb
 faiss-cpu
 fastapi
 uvicorn
+prophet
+pydantic
+langchain-google-genai
+langchain-community

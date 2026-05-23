@@ -1,0 +1,23 @@
+{
+  "prophet": {
+    "mae": 264933.64,
+    "rmse": 318598.14,
+    "mape": 2.0,
+    "train_days": 150,
+    "test_days": 30
+  },
+  "lstm": {
+    "mae": 3002588.89,
+    "rmse": 3432267.92,
+    "sequence_length": 30,
+    "forecast_days": 7,
+    "train_sequences": 115,
+    "test_sequences": 29
+  },
+  "dataset": {
+    "total_transactions": 640855,
+    "total_days": 180,
+    "avg_daily_spending": 13565003.38,
+    "date_range": "2025-11-24 to 2026-05-22"
+  }
+}

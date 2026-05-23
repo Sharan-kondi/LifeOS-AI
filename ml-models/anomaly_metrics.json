@@ -1,0 +1,34 @@
+{
+  "isolation_forest": {
+    "f1_score": 0.0237,
+    "auc_roc": 0.4978,
+    "contamination": 0.03
+  },
+  "autoencoder": {
+    "f1_score": 0.0294,
+    "auc_roc": 0.4996,
+    "threshold": 0.00316
+  },
+  "ensemble": {
+    "f1_score": 0.0281,
+    "threshold": -0.064215
+  },
+  "dataset": {
+    "total_transactions": 640855,
+    "known_anomalies": 12817,
+    "anomaly_rate": 0.02
+  },
+  "features": [
+    "amount",
+    "log_amount",
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "is_night",
+    "category_encoded",
+    "payment_encoded",
+    "amount_zscore",
+    "amount_vs_median",
+    "category_frequency"
+  ]
+}

@@ -8,7 +8,7 @@ CREATE TABLE "User" (
     "profession" TEXT NOT NULL,
     "monthlyIncome" DOUBLE PRECISION NOT NULL,
     "lifestyleType" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "monthlySavingsEstimate" DOUBLE PRECISION NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -17,15 +17,14 @@ CREATE TABLE "User" (
 CREATE TABLE "Transaction" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "amount" DOUBLE PRECISION NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL,
     "category" TEXT NOT NULL,
     "merchant" TEXT NOT NULL,
-    "transactionType" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
     "paymentMethod" TEXT NOT NULL,
     "location" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "isAnomaly" BOOLEAN NOT NULL DEFAULT false,
+    "isWeekend" BOOLEAN NOT NULL,
+    "isNightTransaction" BOOLEAN NOT NULL,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
@@ -35,10 +34,13 @@ CREATE TABLE "Subscription" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "serviceName" TEXT NOT NULL,
-    "monthlyCost" DOUBLE PRECISION NOT NULL,
-    "billingCycle" TEXT NOT NULL,
     "category" TEXT NOT NULL,
-    "nextBillingDate" TIMESTAMP(3) NOT NULL,
+    "monthlyCost" DOUBLE PRECISION NOT NULL,
+    "renewalDate" TIMESTAMP(3) NOT NULL,
+    "active" BOOLEAN NOT NULL,
+    "autoPayEnabled" BOOLEAN NOT NULL,
+    "subscriptionStartDate" TIMESTAMP(3) NOT NULL,
+    "usageFrequency" TEXT NOT NULL,
 
     CONSTRAINT "Subscription_pkey" PRIMARY KEY ("id")
 );
@@ -47,11 +49,15 @@ CREATE TABLE "Subscription" (
 CREATE TABLE "Productivity" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "sleepHours" DOUBLE PRECISION NOT NULL,
     "workHours" DOUBLE PRECISION NOT NULL,
-    "focusScore" DOUBLE PRECISION NOT NULL,
-    "distractions" INTEGER NOT NULL,
-    "productivity" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "focusSessions" INTEGER NOT NULL,
+    "meetingsCount" INTEGER NOT NULL,
+    "screenTimeHours" DOUBLE PRECISION NOT NULL,
+    "stressLevel" INTEGER NOT NULL,
+    "productivityScore" DOUBLE PRECISION NOT NULL,
+    "burnoutRisk" BOOLEAN NOT NULL,
 
     CONSTRAINT "Productivity_pkey" PRIMARY KEY ("id")
 );
@@ -60,17 +66,19 @@ CREATE TABLE "Productivity" (
 CREATE TABLE "Anomaly" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "amount" DOUBLE PRECISION NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL,
+    "category" TEXT NOT NULL,
     "merchant" TEXT NOT NULL,
-    "reason" TEXT NOT NULL,
-    "riskScore" DOUBLE PRECISION NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "paymentMethod" TEXT NOT NULL,
+    "location" TEXT NOT NULL,
+    "isWeekend" BOOLEAN NOT NULL,
+    "isNightTransaction" BOOLEAN NOT NULL,
+    "isAnomaly" BOOLEAN NOT NULL,
+    "anomalyType" TEXT NOT NULL,
 
     CONSTRAINT "Anomaly_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

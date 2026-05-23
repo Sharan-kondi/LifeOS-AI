@@ -11,6 +11,8 @@ const csvPath = path.join(
   "../../../datasets/exports/anomalies.csv"
 );
 
+console.log("CSV PATH:", csvPath);
+
 fs.createReadStream(csvPath)
   .pipe(csv())
   .on("data", (data) => {
@@ -19,35 +21,71 @@ fs.createReadStream(csvPath)
   .on("end", async () => {
     console.log(`Found ${results.length} anomalies`);
 
-    let inserted = 0;
+    try {
+      // Fetch all valid user IDs
+      const users = await prisma.user.findMany({
+        select: { id: true },
+      });
+      const validUserIds = new Set(users.map((u) => u.id));
+      console.log(`Valid Users: ${validUserIds.size}`);
 
-    for (const anomaly of results) {
-      try {
-        await prisma.anomaly.create({
-          data: {
+      const batchSize = 1000;
+      let inserted = 0;
+      let skipped = 0;
+
+      for (let i = 0; i < results.length; i += batchSize) {
+        const batch = results.slice(i, i + batchSize);
+
+        const validBatch = batch
+          .filter((anomaly) => validUserIds.has(anomaly.user_id))
+          .map((anomaly) => ({
             id: anomaly.transaction_id,
-
             userId: anomaly.user_id,
-
+            timestamp: new Date(anomaly.timestamp),
+            category: anomaly.category,
+            merchant: anomaly.merchant,
+            amount: parseFloat(anomaly.amount),
+            paymentMethod: anomaly.payment_method,
+            location: anomaly.location,
+            isWeekend:
+              anomaly.is_weekend === "True" ||
+              anomaly.is_weekend === "true",
+            isNightTransaction:
+              anomaly.is_night_transaction === "True" ||
+              anomaly.is_night_transaction === "true",
+            isAnomaly:
+              anomaly.is_anomaly === "True" ||
+              anomaly.is_anomaly === "true",
             anomalyType: anomaly.anomaly_type,
+          }));
 
-            riskScore: parseFloat(anomaly.amount),
+        skipped += batch.length - validBatch.length;
 
-            detectedAt: new Date(anomaly.timestamp),
-          },
+        const insertedBatch = await prisma.anomaly.createMany({
+          data: validBatch,
+          skipDuplicates: true,
         });
 
-        inserted++;
+        inserted += insertedBatch.count;
 
-        if (inserted % 1000 === 0) {
-          console.log(`${inserted} anomalies inserted`);
-        }
-      } catch (err) {
-        console.log(err);
+        console.log(
+          `Inserted: ${inserted} | Skipped: ${skipped} | Processed: ${Math.min(
+            i + batchSize,
+            results.length
+          )}`
+        );
       }
+
+      console.log(`
+====================================
+Anomalies Seeded Successfully
+Inserted: ${inserted}
+Skipped: ${skipped}
+====================================
+      `);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      await prisma.$disconnect();
     }
-
-    console.log("Anomalies Seeded Successfully");
-
-    await prisma.$disconnect();
   });

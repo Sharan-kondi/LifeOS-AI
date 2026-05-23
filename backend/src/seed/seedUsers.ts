@@ -22,9 +22,11 @@ fs.createReadStream(csvPath)
 
   .on("end", async () => {
     try {
-      console.log(
-        `Found ${results.length} users`
-      );
+      console.log(`Found ${results.length} users`);
+
+      // Default password: LifeOS@2026
+      const bcrypt = require("bcryptjs");
+      const defaultPasswordHash = await bcrypt.hash("LifeOS@2026", 10);
 
       let inserted = 0;
 
@@ -32,27 +34,15 @@ fs.createReadStream(csvPath)
         await prisma.user.create({
           data: {
             id: user.user_id,
-
             fullName: user.full_name,
-
             email: user.email,
-
+            password: defaultPasswordHash,
             age: Number(user.age),
-
             city: user.city,
-
             profession: user.profession,
-
-            monthlyIncome: Number(
-              user.monthly_income
-            ),
-
-            lifestyleType:
-              user.lifestyle_type,
-
-            monthlySavingsEstimate: Number(
-              user.monthly_savings_estimate
-            ),
+            monthlyIncome: Number(user.monthly_income),
+            lifestyleType: user.lifestyle_type,
+            monthlySavingsEstimate: Number(user.monthly_savings_estimate),
           },
         });
 

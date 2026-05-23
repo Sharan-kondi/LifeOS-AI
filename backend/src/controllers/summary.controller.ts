@@ -6,59 +6,94 @@ export const getSummary = async (
   res: Response
 ) => {
   try {
-    const transactions =
-      await prisma.transaction.findMany();
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      res.status(401).json({ message: "Not authenticated" });
+      return;
+    }
 
-    const subscriptions =
-      await prisma.subscription.findMany();
+    // Use aggregation queries instead of loading all records into memory
+    const [
+      transactionStats,
+      subscriptionStats,
+      productivityStats,
+      anomalyCount,
+      recentTransactions,
+      categoryBreakdown,
+    ] = await Promise.all([
+      // Total transactions and spending
+      prisma.transaction.aggregate({
+        where: { userId },
+        _count: true,
+        _sum: { amount: true },
+        _avg: { amount: true },
+      }),
 
-    const productivity =
-      await prisma.productivity.findMany();
+      // Total subscription cost
+      prisma.subscription.aggregate({
+        where: { userId },
+        _count: true,
+        _sum: { monthlyCost: true },
+      }),
 
-    const anomalies =
-      await prisma.anomaly.findMany({
-        where: {
-          isAnomaly: true,
-        },
-      });
+      // Average productivity score
+      prisma.productivity.aggregate({
+        where: { userId },
+        _count: true,
+        _avg: { productivityScore: true, sleepHours: true, stressLevel: true },
+      }),
 
-    const totalSpent =
-      transactions.reduce(
-        (acc, tx) => acc + tx.amount,
-        0
-      );
+      // Anomaly count
+      prisma.anomaly.count({
+        where: { userId, isAnomaly: true },
+      }),
 
-    const totalSubscriptionCost =
-      subscriptions.reduce(
-        (acc, sub) =>
-          acc + sub.monthlyCost,
-        0
-      );
+      // Recent transactions for dashboard
+      prisma.transaction.findMany({
+        where: { userId },
+        take: 10,
+        orderBy: { timestamp: "desc" },
+      }),
 
-    const avgProductivity =
-      productivity.reduce(
-        (acc, item) =>
-          acc + item.productivityScore,
-        0
-      ) / productivity.length;
+      // Spending by category (top 10)
+      prisma.transaction.groupBy({
+        by: ["category"],
+        where: { userId },
+        _sum: { amount: true },
+        _count: true,
+        orderBy: { _sum: { amount: "desc" } },
+        take: 10,
+      }),
+    ]);
 
     res.json({
-      totalTransactions:
-        transactions.length,
+      totalTransactions: transactionStats._count,
+      totalSpent: Math.round((transactionStats._sum.amount || 0) * 100) / 100,
+      averageTransactionAmount:
+        Math.round((transactionStats._avg.amount || 0) * 100) / 100,
 
-      totalSpent,
-
-      totalSubscriptionCost,
-
-      totalAnomalies:
-        anomalies.length,
+      totalSubscriptions: subscriptionStats._count,
+      totalSubscriptionCost:
+        Math.round((subscriptionStats._sum.monthlyCost || 0) * 100) / 100,
 
       averageProductivity:
-        avgProductivity,
+        Math.round((productivityStats._avg.productivityScore || 0) * 100) / 100,
+      averageSleep:
+        Math.round((productivityStats._avg.sleepHours || 0) * 100) / 100,
+      averageStress:
+        Math.round((productivityStats._avg.stressLevel || 0) * 100) / 100,
+
+      totalAnomalies: anomalyCount,
+
+      recentTransactions,
+      categoryBreakdown: categoryBreakdown.map((c) => ({
+        category: c.category,
+        totalAmount: Math.round((c._sum.amount || 0) * 100) / 100,
+        count: c._count,
+      })),
     });
   } catch (error) {
-    console.log(error);
-
+    console.error("Error fetching summary:", error);
     res.status(500).json({
       message: "Error fetching summary",
     });

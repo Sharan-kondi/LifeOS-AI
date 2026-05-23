@@ -1,0 +1,70 @@
+{
+  "model_type": "XGBoost + TF-IDF",
+  "accuracy": 1.0,
+  "avg_confidence": 1.0,
+  "train_size": 512684,
+  "test_size": 128171,
+  "n_categories": 8,
+  "categories": [
+    "ATM",
+    "Bills",
+    "Entertainment",
+    "Food",
+    "Fuel",
+    "Investment",
+    "Shopping",
+    "Transport"
+  ],
+  "per_class": {
+    "ATM": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 15931
+    },
+    "Bills": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 15977
+    },
+    "Entertainment": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 15922
+    },
+    "Food": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 16168
+    },
+    "Fuel": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 16035
+    },
+    "Investment": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 16114
+    },
+    "Shopping": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 16017
+    },
+    "Transport": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 16007
+    }
+  },
+  "macro_f1": 1.0,
+  "weighted_f1": 1.0
+}
