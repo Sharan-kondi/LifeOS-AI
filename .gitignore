@@ -44,3 +44,4 @@ temp/
 .cache/
 test_*.json
 test_output.json
+deploy-hf/
