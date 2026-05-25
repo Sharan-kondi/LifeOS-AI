@@ -21,42 +21,28 @@ fs.createReadStream(csvPath)
 
     let inserted = 0;
 
-    for (const subscription of results) {
-      try {
-        await prisma.subscription.create({
-          data: {
-            id: subscription.subscription_id,
-            userId: subscription.user_id,
+    const subBatch = results.map((subscription) => ({
+      id: subscription.subscription_id,
+      userId: subscription.user_id,
+      serviceName: subscription.service_name,
+      category: subscription.category,
+      monthlyCost: parseFloat(subscription.monthly_cost),
+      renewalDate: new Date(subscription.renewal_date),
+      active: subscription.active === "True",
+      autoPayEnabled: subscription.auto_pay_enabled === "True",
+      subscriptionStartDate: new Date(subscription.subscription_start_date),
+      usageFrequency: subscription.usage_frequency,
+    }));
 
-            serviceName: subscription.service_name,
-            category: subscription.category,
-
-            monthlyCost: parseFloat(subscription.monthly_cost),
-
-            renewalDate: new Date(subscription.renewal_date),
-
-            active: subscription.active === "True",
-
-            autoPayEnabled:
-              subscription.auto_pay_enabled === "True",
-
-            subscriptionStartDate: new Date(
-              subscription.subscription_start_date
-            ),
-
-            usageFrequency:
-              subscription.usage_frequency,
-          },
-        });
-
-        inserted++;
-
-        if (inserted % 1000 === 0) {
-          console.log(`${inserted} subscriptions inserted`);
-        }
-      } catch (err) {
-        console.log(err);
-      }
+    try {
+      const insertedBatch = await prisma.subscription.createMany({
+        data: subBatch,
+        skipDuplicates: true,
+      });
+      inserted = insertedBatch.count;
+      console.log(`${inserted} subscriptions inserted`);
+    } catch (err) {
+      console.log(err);
     }
 
     console.log("Subscriptions Seeded Successfully");

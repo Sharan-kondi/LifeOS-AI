@@ -30,30 +30,26 @@ fs.createReadStream(csvPath)
 
       let inserted = 0;
 
-      for (const user of results) {
-        await prisma.user.create({
-          data: {
-            id: user.user_id,
-            fullName: user.full_name,
-            email: user.email,
-            password: defaultPasswordHash,
-            age: Number(user.age),
-            city: user.city,
-            profession: user.profession,
-            monthlyIncome: Number(user.monthly_income),
-            lifestyleType: user.lifestyle_type,
-            monthlySavingsEstimate: Number(user.monthly_savings_estimate),
-          },
-        });
+      const userBatch = results.map((user) => ({
+        id: user.user_id,
+        fullName: user.full_name,
+        email: user.email,
+        password: defaultPasswordHash,
+        age: Number(user.age),
+        city: user.city,
+        profession: user.profession,
+        monthlyIncome: Number(user.monthly_income),
+        lifestyleType: user.lifestyle_type,
+        monthlySavingsEstimate: Number(user.monthly_savings_estimate),
+      }));
 
-        inserted++;
+      const insertedBatch = await prisma.user.createMany({
+        data: userBatch,
+        skipDuplicates: true,
+      });
 
-        if (inserted % 1000 === 0) {
-          console.log(
-            `${inserted} users inserted`
-          );
-        }
-      }
+      inserted = insertedBatch.count;
+      console.log(`${inserted} users inserted`);
 
       console.log(
         "Users Seeded Successfully"
