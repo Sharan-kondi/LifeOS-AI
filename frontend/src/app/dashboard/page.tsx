@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign,
   CreditCard,
@@ -11,6 +11,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Sparkles,
+  Loader2,
+  X,
 } from "lucide-react";
 import {
   Card,
@@ -32,8 +34,9 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { getSummary, getSpendingTrend, getAnomalyStats } from "@/services/data";
+import { getSummary, getSpendingTrend, getAnomalyStats, getAIInsights } from "@/services/data";
 import type { Summary, SpendingTrend, AnomalyStats } from "@/types";
+import ReactMarkdown from "react-markdown";
 
 const CHART_COLORS = [
   "oklch(0.6 0.22 265)",    // violet
@@ -91,6 +94,24 @@ export default function DashboardPage() {
   const [trend, setTrend] = useState<SpendingTrend[]>([]);
   const [anomalyStats, setAnomalyStats] = useState<AnomalyStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showInsights, setShowInsights] = useState(false);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [insights, setInsights] = useState<string | null>(null);
+
+  const handleFetchInsights = async () => {
+    setShowInsights(true);
+    if (insights) return;
+    try {
+      setInsightsLoading(true);
+      const res = await getAIInsights();
+      setInsights(res.answer);
+    } catch (err) {
+      console.error(err);
+      setInsights("Oops! Failed to load AI insights. Please make sure the AI microservice is active.");
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -176,12 +197,13 @@ export default function DashboardPage() {
             Your financial & productivity overview at a glance
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-violet-500/20 bg-violet-500/5 px-3 py-1.5">
-          <Sparkles className="h-4 w-4 text-violet-400" />
-          <span className="text-xs font-medium text-violet-300">
-            AI Insights Coming Soon
-          </span>
-        </div>
+        <button
+          onClick={handleFetchInsights}
+          className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 hover:bg-violet-500/25 cursor-pointer active:scale-95 transition-all text-xs font-medium text-violet-300 shadow-md shadow-violet-500/5"
+        >
+          <Sparkles className="h-4 w-4 text-violet-400 animate-pulse" />
+          <span>AI Insights</span>
+        </button>
       </div>
 
       {/* Summary Cards */}
@@ -444,6 +466,79 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Insights Modal */}
+      <AnimatePresence>
+        {showInsights && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowInsights(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Dialog */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-violet-500/20 bg-zinc-900/90 p-6 shadow-2xl backdrop-blur-md"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600/20 text-violet-400">
+                    <Sparkles className="h-5 w-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">AI Intelligence Insights</h3>
+                    <p className="text-xs text-muted-foreground">Automated analysis of your LifeOS telemetry</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowInsights(false)}
+                  className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="py-6 text-sm text-zinc-300 leading-relaxed min-h-[160px] flex items-center justify-center">
+                {insightsLoading ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-7 w-7 animate-spin text-violet-500" />
+                    <p className="text-xs text-muted-foreground animate-pulse">
+                      Gemini is generating custom insights...
+                    </p>
+                  </div>
+                ) : (
+                  <div className="prose prose-sm dark:prose-invert w-full">
+                    {insights ? (
+                      <ReactMarkdown>{insights}</ReactMarkdown>
+                    ) : (
+                      <p className="text-muted-foreground text-center">No insights available.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end border-t border-zinc-800 pt-4">
+                <button
+                  onClick={() => setShowInsights(false)}
+                  className="rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 active:scale-95 transition-all cursor-pointer shadow-lg shadow-violet-500/25"
+                >
+                  Close Insights
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

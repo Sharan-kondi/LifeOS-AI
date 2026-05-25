@@ -6,7 +6,7 @@ def get_subscription_summary(user_id: str) -> str:
     try:
         csv_path = os.path.join(os.path.dirname(__file__), "../../../datasets/exports/subscriptions.csv")
         df = pd.read_csv(csv_path)
-        user_df = df[(df['user_id'] == user_id) & (df['status'] == 'Active')]
+        user_df = df[(df['user_id'] == user_id) & (df['active'] == True)]
         if user_df.empty:
             return "No active subscriptions found for this user."
         

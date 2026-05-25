@@ -8,6 +8,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 
+const demoUsers = [
+  { name: "Januja Ramachandran", email: "nchahal@example.org", profession: "Business Analyst", city: "Delhi" },
+  { name: "Nisha Krishna", email: "tanveersuri@example.com", profession: "Lawyer", city: "Kolkata" },
+  { name: "Dhriti Luthra", email: "siya70@example.net", profession: "Teacher", city: "Hyderabad" },
+  { name: "Aditya Oommen", email: "okhosla@example.com", profession: "Marketing Manager", city: "Kolkata" },
+  { name: "Jeremiah Mishra", email: "irana@example.com", profession: "Lawyer", city: "Mumbai" },
+  { name: "Rachit Grewal", email: "tamble@example.net", profession: "Teacher", city: "Hyderabad" },
+  { name: "Wahab Nanda", email: "buchekiya@example.com", profession: "Teacher", city: "Chennai" },
+  { name: "Urmi Choudhry", email: "kabir45@example.net", profession: "Business Analyst", city: "Hyderabad" },
+  { name: "Saumya Khurana", email: "yashodhara22@example.org", profession: "Architect", city: "Mumbai" },
+  { name: "Neel Bath", email: "hsheth@example.com", profession: "Student", city: "Mumbai" },
+  { name: "Upma Dora", email: "sridharnidra@example.net", profession: "Student", city: "Pune" },
+  { name: "Aarav Thaker", email: "tanishbajaj@example.org", profession: "Student", city: "Bangalore" },
+  { name: "Champak Sharma", email: "ysodhi@example.net", profession: "Architect", city: "Mumbai" },
+  { name: "Elijah Parekh", email: "vkrishna@example.org", profession: "Doctor", city: "Chennai" },
+  { name: "Barkha Arora", email: "watika48@example.com", profession: "AI Engineer", city: "Hyderabad" },
+];
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,9 +34,10 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
 
-  const handleDemoLogin = async () => {
-    setEmail("nchahal@example.org");
+  const handleDemoLogin = (demoEmail: string) => {
+    setEmail(demoEmail);
     setPassword("LifeOS@2026");
+    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -182,22 +201,30 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-8 rounded-lg border border-violet-500/20 bg-violet-500/5 p-4 text-sm">
-            <p className="font-medium text-violet-500">Recruiter / Interviewer Demo</p>
+            <p className="font-medium text-violet-500">Demo Accounts ({demoUsers.length} available)</p>
             <p className="mt-1 text-muted-foreground">
-              We've seeded 1,000 synthetic users to test the ML models.
+              Click any user below to autofill their credentials. Password: <code className="rounded bg-muted px-1">LifeOS@2026</code>
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3 w-full border-violet-500/20 text-violet-500 hover:bg-violet-500/10 hover:text-violet-600"
-              onClick={handleDemoLogin}
-              type="button"
-            >
-              Autofill Demo Credentials
-            </Button>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Password for all seeded accounts is <code className="rounded bg-muted px-1">LifeOS@2026</code>
-            </p>
+            <div className="mt-3 max-h-48 space-y-2 overflow-y-auto pr-1">
+              {demoUsers.map((user) => (
+                <button
+                  key={user.email}
+                  type="button"
+                  onClick={() => handleDemoLogin(user.email)}
+                  className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-xs transition-all hover:border-violet-500/40 hover:bg-violet-500/10 ${
+                    email === user.email
+                      ? "border-violet-500 bg-violet-500/10 text-violet-500"
+                      : "border-zinc-800 text-muted-foreground"
+                  }`}
+                >
+                  <div>
+                    <span className="font-medium text-foreground">{user.name}</span>
+                    <span className="ml-2 text-muted-foreground">{user.profession}, {user.city}</span>
+                  </div>
+                  <ArrowRight className="h-3 w-3 shrink-0 text-violet-500 opacity-0 transition-opacity group-hover:opacity-100" style={{ opacity: email === user.email ? 1 : undefined }} />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

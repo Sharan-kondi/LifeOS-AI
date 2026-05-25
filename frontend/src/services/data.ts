@@ -96,3 +96,8 @@ export async function sendChatMessage(query: string, history: any[] = []): Promi
   const { data } = await api.post("/ai/chat", { query, history });
   return data;
 }
+
+export async function getAIInsights(): Promise<{ answer: string }> {
+  const { data } = await api.post("/ai/insights");
+  return data;
+}

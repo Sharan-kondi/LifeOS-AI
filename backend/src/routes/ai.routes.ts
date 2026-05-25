@@ -91,6 +91,22 @@ router.post("/chat", async (req, res) => {
   }
 });
 
+router.post("/insights", async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+    const axios = require("axios");
+    const response = await axios.post(`${process.env.AI_SERVICE_URL || "http://127.0.0.1:8000"}/agent/chat`, {
+      query: "Based on my data, give me exactly 3 short, punchy, bulleted insights/alerts about my financial and productivity status. Format them as clean markdown bullet points. Keep each bullet point brief and actionable (maximum 2 sentences per point).",
+      history: [],
+      user_id: userId
+    });
+    res.json(response.data);
+  } catch (error: any) {
+    console.error("AI Insights Error:", error.message);
+    res.status(503).json({ error: "AI Insights are currently unavailable" });
+  }
+});
+
 // --- Health & Metrics ---
 router.get("/health", async (req, res) => {
   try {

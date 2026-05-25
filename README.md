@@ -109,6 +109,40 @@ Click **"Autofill Demo Credentials"** on the login page to authenticate as one o
 
 ---
 
+## 🐳 Docker Compose Deployment
+
+The entire microservices stack (PostgreSQL, FastAPI, Node Express, and Next.js) can be containerized and run locally or on a production VPS using Docker Compose.
+
+### Running with Docker Compose
+
+1. **Start all containers**:
+   Ensure Docker Desktop or the Docker daemon is running, then execute from the root directory:
+   ```bash
+   docker compose up --build -d
+   ```
+   This builds the Next.js, Node.js, and FastAPI containers, configures the PostgreSQL database, and spins up the private internal networks.
+
+2. **Run Database Migrations & Seeding**:
+   Once the containers are running, execute the master seed script inside the running Node backend container to create the database schema and populate all synthetic user transactions:
+   
+   - **On Linux / Mac (Bash)**:
+     ```bash
+     docker exec -it lifeos-backend bash scripts/seed.sh
+     ```
+   - **On Windows (PowerShell)**:
+     ```powershell
+     docker exec -it lifeos-backend sh scripts/seed.sh
+     ```
+   
+   This script runs Prisma push and seeds 1000 users, 630,000 transactions, 3,000 subscriptions, 90,000 productivity logs, and 12,000 anomalies.
+
+3. **Access Services**:
+   - **Frontend Dashboard**: [http://localhost:3000](http://localhost:3000)
+   - **Node Express Backend**: [http://localhost:5000](http://localhost:5000)
+   - **AI Microservice**: [http://localhost:8000](http://localhost:8000)
+
+---
+
 ## 🧠 Machine Learning Pipelines
 
 All datasets and ML training scripts are included in the repository.
