@@ -12,7 +12,10 @@ RUN npx prisma generate
 
 COPY . .
 
+# Compile TypeScript to JavaScript
+RUN npm run build
+
 EXPOSE 5000
 
-# Dev mode matches backend configuration and handles TypeScript source directly
-CMD ["npm", "run", "dev"]
+# Run compiled production code
+CMD ["npm", "run", "start"]
